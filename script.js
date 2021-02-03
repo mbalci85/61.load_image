@@ -1,13 +1,11 @@
 const createImage = (imgPath) => {
 	return new Promise((resolve, reject) => {
-		const currentImg = document.querySelector('img');
 		const newImg = document.createElement('img');
 		newImg.src = imgPath;
 		document.querySelector('.images').appendChild(newImg);
-		console.log(newImg.src);
 		newImg.addEventListener('load', () => {
 			console.log('Image is loaded');
-			resolve(2000);
+			resolve(newImg);
 		});
 		newImg.addEventListener('error', () => {
 			reject('File was not found');
@@ -17,36 +15,34 @@ const createImage = (imgPath) => {
 
 const waitFor = (ms) => {
 	return new Promise((resolve, reject) => {
-		setTimeout(() => {}, ms);
+		setTimeout(resolve, ms);
 	});
 };
 
+let currentImg;
+
 createImage('./images/img-1.jpg')
-	.then((resolvedValue) => waitFor(resolvedValue))
-	.then(() => createImage('./images/img-2.jpg'));
-
-// const waitFor = (img) => {
-// 	return new Promise((resolve, reject) => {
-// 		if (img.src.includes('images/img-1.jpg')) {
-// 			resolve(
-// 				setTimeout(() => {
-// 					img.style.display = 'none';
-// 				}, 2000),
-// 			);
-// 		} else if (img.src.includes('images/img-2.jpg')) {
-// 			resolve(
-// 				setTimeout(() => {
-// 					img.style.display = 'none';
-// 				}, 2000),
-// 			);
-// 		}
-// 	});
-// };
-
-// createImage('images/img-1.jpg')
-// 	.then((resolvedValue) => waitFor(resolvedValue))
-// 	.then(createImage('images/img-2.jpg'))
-// 	.then((resolvedValue) => waitFor(resolvedValue))
-// 	.then(createImage('images/img-3.jpg'))
-// 	.then((resolvedValue) => waitFor(resolvedValue))
-// 	.catch((error) => console.log(error));
+	.then((resolvedValue) => {
+		currentImg = resolvedValue;
+		return waitFor(2000);
+	})
+	.then(() => {
+		currentImg.style.display = 'none';
+		return createImage('./images/img-2.jpg');
+	})
+	.then((resolvedValue) => {
+		currentImg = resolvedValue;
+		return waitFor(2000);
+	})
+	.then(() => {
+		currentImg.style.display = 'none';
+		return createImage('./images/img-3.jpg');
+	})
+	.then((resolvedValue) => {
+		currentImg = resolvedValue;
+		return waitFor(2000);
+	})
+	.then(() => {
+		currentImg.style.display = 'none';
+		document.body.innerHTML = '<h1>Refresh Page</h1>';
+	});
